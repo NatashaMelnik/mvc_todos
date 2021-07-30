@@ -2,10 +2,6 @@ const Task = require('../models/model');
 
 class TaskController {
 
-    constructor() {
-        // console.log('in constructor');
-    }
-
     displayAll(res) {
         return res.send(Task);
     }
