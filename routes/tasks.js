@@ -16,10 +16,10 @@ const write = function() {
     controller.addTask(req, res);
   });
   router.put('/:id', function (req, res) {
-    controller.addTask(req, res);
+    controller.rewriteTask(req, res);
   });
   router.patch('/:id', function (req, res) {
-    controller.addTask(req, res);
+    controller.updateTask(req, res);
   });
 }
 
