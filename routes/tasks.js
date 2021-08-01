@@ -21,6 +21,9 @@ const write = function() {
   router.patch('/:id', function (req, res) {
     controller.updateTask(req, res);
   });
+  router.delete('/:id', function(req, res) {
+    controller.deleteTask(req, res);
+  });
 }
 
 

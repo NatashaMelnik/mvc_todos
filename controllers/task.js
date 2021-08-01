@@ -1,13 +1,15 @@
-const Task = require('../models/model');
+let Task = require('../models/model');
 
 class TaskController {
+
+    // crud create read update delete
 
     displayAll(res) {
         return res.send(Task);
     }
 
     displaySingle(res, id) {
-        return res.send(Task[id]);
+        return res.send(Task[id - 1]);
     }
 
     addTask(req, res) {
@@ -34,6 +36,15 @@ class TaskController {
         let task = Task.find(t => +t.id === +taskId);
         if (task) {
             Object.assign(task, req.body);
+            return res.json(Task);
+        }
+        return res.json(Task);
+    }
+
+    deleteTask(req, res) {
+        const taskId = parseInt(req.params.id);
+        if(taskId <= Task.length){
+            Task.splice(taskId - 1, 1);
             return res.json(Task);
         }
         return res.json(Task);
