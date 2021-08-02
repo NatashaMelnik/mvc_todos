@@ -4,25 +4,31 @@ const controller = require('../controllers/task');
 
 const read = function () {
   router.get('/:listId/tasks/', function (req, res) {
-    controller.displayAll(res, +req.params.listId);
+    let result = controller.displayAll(req.params.listId);
+    res.send(result);
   });
   router.get('/:listId/tasks/:id', function (req, res) {
-    controller.displaySingle(res, +req.params.listId, +req.params.id);
+    let result = controller.displaySingle(req.params.listId, +req.params.id);
+    res.send(result);
   });
 }
 
 const write = function() {
   router.post('/:listId/tasks', function (req, res) {
-    controller.addTask(req, res);
+    let result = controller.addTask(req.params.listId, req.body.name, req.body.done);
+    res.send(result);
   });
   router.patch('/:listId/tasks/:id', function (req, res) {
-    controller.updateTask(req, res);
+    let result = controller.updateTask(req.params.listId, +req.params.id, req.body);
+    res.send(result);
   });
   router.put('/:listId/tasks/:id', function (req, res) {
-    controller.rewriteTask(req, res);
+    let result = controller.rewriteTask(req.params.listId, +req.params.id, req.body);
+    res.send(result);
   });
   router.delete('/:listId/tasks/:id', function(req, res) {
-    controller.deleteTask(req, res);
+    let result = controller.deleteTask(req.params.listId, +req.params.id);
+    res.send(result);
   });
 }
 
