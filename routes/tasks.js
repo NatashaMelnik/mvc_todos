@@ -2,10 +2,10 @@ const router = require('express').Router()
 
 const controller = require('../controllers/task');
 
-const read = function () { // query
+const read = function () {
     router.get('/', function (req, res) {
-        if (+req.query.id) {
-            let result = controller.displaySingle(req.query.listId, +req.query.id);
+        if (+req.body.id) {
+            let result = controller.displaySingle(req.query.listId, +req.body.id);
             res.send(result);
         }
         else {
@@ -17,23 +17,19 @@ const read = function () { // query
 
 const write = function () {
     router.post('/', function (req, res) {
-        let result = controller.addTask(req.query.listId, req.query.name, Boolean(req.query.done));
+        let result = controller.addTask(req.query.listId, req.body);
         res.send(result);
     });
     router.patch('/', function (req, res) {
-        let result = controller.updateTask(req.query.listId, +req.query.id, Boolean(req.query.done));
+        let result = controller.updateTask(req.query.listId, +req.body.id, Boolean(req.body.done));
         res.send(result);
     });
     router.put('/', function (req, res) {
-        let body = { name: req.query.name };
-        if (req.query.done == 'False' || req.query.done == 'True') {
-            body.done = Boolean(req.query.done)
-        }
-        let result = controller.rewriteTask(req.query.listId, +req.query.id, body);
+        let result = controller.rewriteTask(req.query.listId, +req.body.id, req.body);
         res.send(result);
     });
     router.delete('/', function (req, res) {
-        let result = controller.deleteTask(req.query.listId, +req.query.id);
+        let result = controller.deleteTask(req.query.listId, +req.body.id);
         res.send(result);
     });
 }

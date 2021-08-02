@@ -30,10 +30,10 @@ class ListTodos {
         return this.List[listId][id - 1];
     }
 
-    addTask(listId, name, done_) {
-        let task = { id: this.List[listId].length + 1, name: name };
-        if (done_ === false || done_ === true) {
-            task = { id: this.List[listId].length + 1, name: name, done: done_ }
+    addTask(listId, body) {
+        let task = { id: this.List[listId].length + 1};
+        if (body) {
+            Object.assign(task, body);
         }
         this.List[listId].push(task);
         return this.List[listId];

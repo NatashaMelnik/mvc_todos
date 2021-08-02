@@ -12,8 +12,8 @@ class TaskController {
         return List.displaySingle(listId, id);
     }
 
-    addTask(listId, name, done) { 
-        return List.addTask(listId, name, done);
+    addTask(listId, body) { 
+        return List.addTask(listId, body);
     }
 
     updateTask(listId, taskId, body) {

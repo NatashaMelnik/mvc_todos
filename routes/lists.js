@@ -15,19 +15,19 @@ const read = function () {
 
 const write = function() {
   router.post('/:listId/tasks', function (req, res) {
-    let result = controller.addTask(req.params.listId, req.body.name, req.body.done);
+    let result = controller.addTask(req.params.listId, req.body);
     res.send(result);
   });
-  router.patch('/:listId/tasks/:id', function (req, res) {
-    let result = controller.updateTask(req.params.listId, +req.params.id, req.body);
+  router.patch('/:listId/tasks', function (req, res) {
+    let result = controller.updateTask(req.params.listId, +req.body.id, req.body);
     res.send(result);
   });
-  router.put('/:listId/tasks/:id', function (req, res) {
-    let result = controller.rewriteTask(req.params.listId, +req.params.id, req.body);
+  router.put('/:listId/tasks', function (req, res) {
+    let result = controller.rewriteTask(req.params.listId, +req.body.id, req.body);
     res.send(result);
   });
-  router.delete('/:listId/tasks/:id', function(req, res) {
-    let result = controller.deleteTask(req.params.listId, +req.params.id);
+  router.delete('/:listId/tasks', function(req, res) {
+    let result = controller.deleteTask(req.params.listId, +req.body.id);
     res.send(result);
   });
 }
