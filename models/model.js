@@ -3,22 +3,38 @@ const config = require('./config');
 
 class ListTodos {
 
+    async checkTaskExistence(listId, id) {
+        const client = new Client(config);
+        client.connect();
+        return client.query('SELECT * FROM tasks INNER JOIN lists ON tasks.list_id=lists.id where lists.id=$1 and tasks.id=$2', [+listId, +id])
+            .then(data => {
+                if (data.rows.length > 0) {
+                    return true;
+                }
+                else {
+                    return false;
+                }
+            });
+    }
+
     async displayAll(listId) {
         const client = new Client(config);
         client.connect();
         let list = await client.query('SELECT tasks.id, name, done FROM tasks INNER JOIN lists ON tasks.list_id=lists.id where lists.id=$1', [+listId]);
-        client.end();
         return list.rows;
     }
 
     async displaySingle(listId, id) {
-        const client = new Client(config);
-        client.connect();
-        let list = await client.query('SELECT tasks.id, name FROM tasks INNER JOIN lists ON tasks.list_id=lists.id where lists.id=$1 and tasks.id=$2', [+listId, +id]);
-        client.end();
-        if (list.rows) {
-            return list.rows;
-        }
+        return this.checkTaskExistence(listId, id)
+            .then(condition => {
+                if (condition) {
+                    const client = new Client(config);
+                    return client.query('SELECT tasks.id, name FROM tasks INNER JOIN lists ON tasks.list_id=lists.id where lists.id=$1 and tasks.id=$2', [+listId, +id])
+                        .then((data) => {
+                            return data.rows[0];
+                        });
+                }
+            });
     }
 
     async addTask(listId, body) {
