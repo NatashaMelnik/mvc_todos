@@ -1,74 +1,59 @@
-const List_ = {
-    1: [
-        { id: 1, name: 'Task1 from List1' },
-        { id: 2, name: 'Task2 from List1' },
-        { id: 3, name: 'Task3 from List1' }
-    ],
-    2: [
-        { id: 1, name: 'Task 1 from List2' },
-        { id: 2, name: 'Task 2 from List2' },
-        { id: 3, name: 'Task 3 from List2' }
-    ],
-    3: [
-        { id: 1, name: 'Task 1 from List3' },
-        { id: 2, name: 'Task 2 from List3' },
-        { id: 3, name: 'Task 3 from List3' }
-    ]
-};
+const { Client } = require('pg');
+const config = require('./config');
 
 class ListTodos {
-    List; 
-    constructor(List) {
-        this.List = List;
+
+    async displayAll(listId) {
+        const client = new Client(config);
+        client.connect();
+        let list = await client.query('SELECT tasks.id, name, done FROM tasks INNER JOIN lists ON tasks.list_id=lists.id where lists.id=$1', [+listId]);
+        client.end();
+        return list.rows;
     }
 
-    displayAll(listId) {
-        return this.List[listId];
-    }
-
-    displaySingle(listId, id) {
-        return this.List[listId][id - 1];
-    }
-
-    addTask(listId, body) {
-        let task = { id: this.List[listId].length + 1};
-        if (body) {
-            Object.assign(task, body);
+    async displaySingle(listId, id) {
+        const client = new Client(config);
+        client.connect();
+        let list = await client.query('SELECT tasks.id, name FROM tasks INNER JOIN lists ON tasks.list_id=lists.id where lists.id=$1 and tasks.id=$2', [+listId, +id]);
+        client.end();
+        if (list.rows) {
+            return list.rows;
         }
-        this.List[listId].push(task);
-        return this.List[listId];
     }
 
-    updateTask(listId, id, body) {
-        let task = this.List[listId].find(t => +t.id === +id);
-        if (body === false || body === true) {
-            body = {done: body}
+    async addTask(listId, body) {
+        const client = new Client(config);
+        client.connect();
+        return client.query('INSERT INTO public.tasks(id, name, list_id) VALUES (default, $1, $2);', [body.name, +listId])
+    }
+
+    async updateTask(listId, id, body) {
+        const client = new Client(config);
+        client.connect();
+        if (typeof body.done === "boolean") {
+            return client.query('UPDATE public.tasks SET done=$1 WHERE tasks.id=$2;', [body.done, +body.id])
         }
-        if (task) {
-            Object.assign(task, body);
-            return this.List[listId];
-        }
-        return this.List[listId];
     }
 
     rewriteTask(listId, id, body) {
-        let task = this.List[listId].find(t => +t.id === +id);
-        if (task) {
-            Object.assign(task, body);
-            return this.List[listId];
+        const client = new Client(config);
+        client.connect();
+        if (body.name) {
+            if (typeof body.done === "boolean") {
+                return client.query('UPDATE public.tasks SET done=$1, name=$2 WHERE tasks.id=$3', [body.done, body.name, +body.id])
+            }
         }
-        return this.List[listId];
     }
 
     deleteTask(listId, taskId) {
-        if (taskId <= this.List[listId].length) {
-            this.List[listId].splice(taskId - 1, 1);
-            return this.List[listId];
+        const client = new Client(config);
+        client.connect();
+        if (+taskId) {
+            return client.query('DELETE FROM public.tasks WHERE tasks.id=$1;', [+taskId])
         }
-        return this.List[listId];
     }
 }
 
-const List = new ListTodos(List_);
+const List = new ListTodos();
 
 module.exports = List;

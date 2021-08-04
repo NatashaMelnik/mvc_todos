@@ -4,37 +4,62 @@ const controller = require('../controllers/task');
 
 const read = function () {
   router.get('/:listId/tasks/', function (req, res) {
-    let result = controller.displayAll(req.params.listId);
-    res.send(result);
+    controller.displayAll(req.params.listId)
+      .then(data => {
+        res.send(data);
+      });
+      
   });
   router.get('/:listId/tasks/:id', function (req, res) {
-    let result = controller.displaySingle(req.params.listId, +req.params.id);
-    res.send(result);
+    controller.displaySingle(req.params.listId, +req.params.id)
+      .then(data => {
+        res.send(data);
+      });
   });
 }
 
-const write = function() {
+const write = function () {
   router.post('/:listId/tasks', function (req, res) {
-    let result = controller.addTask(req.params.listId, req.body);
-    res.send(result);
+    controller.addTask(req.params.listId, req.body)
+      .then(() => {
+        controller.displayAll(req.params.listId)
+          .then(data => {
+            res.send(data);
+          })
+      });
   });
   router.patch('/:listId/tasks', function (req, res) {
-    let result = controller.updateTask(req.params.listId, +req.body.id, req.body);
-    res.send(result);
+    controller.updateTask(req.params.listId, +req.body.id, req.body)
+    .then(() => {
+      controller.displayAll(req.params.listId)
+        .then(data => {
+          res.send(data);
+        })
+    });
   });
   router.put('/:listId/tasks', function (req, res) {
-    let result = controller.rewriteTask(req.params.listId, +req.body.id, req.body);
-    res.send(result);
+    controller.rewriteTask(req.params.listId, +req.body.id, req.body)
+    .then(() => {
+      controller.displayAll(req.params.listId)
+        .then(data => {
+          res.send(data);
+        })
+    });
   });
-  router.delete('/:listId/tasks', function(req, res) {
-    let result = controller.deleteTask(req.params.listId, +req.body.id);
-    res.send(result);
+  router.delete('/:listId/tasks', function (req, res) {
+    controller.deleteTask(req.params.listId, +req.body.id, req.body)
+    .then(() => {
+      controller.displayAll(req.params.listId)
+        .then(data => {
+          res.send(data);
+        })
+    });
   });
 }
 
 function crud() {
-    read();
-    write();
+  read();
+  write();
 }
 
 crud();

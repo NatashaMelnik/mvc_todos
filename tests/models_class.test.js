@@ -40,7 +40,7 @@ const output4 = [
 const output5 = [
     { id: 1, name: 'Task 1 from List3' },
     { id: 2, name: 'Task 2 from List3' }
-];
+]; 
 
 it('show correct array of tasks', () => {
     expect(List.displayAll(1)).toStrictEqual(output["1"]);
