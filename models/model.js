@@ -21,7 +21,7 @@ class ListTodos {
         const client = new Client(config);
         client.connect();
         let list = await client.query('SELECT tasks.id, name, done FROM tasks INNER JOIN lists ON tasks.list_id=lists.id where lists.id=$1', [+listId]);
-        return list.rows;
+        return this.clean(list.rows);
     }
 
     async displaySingle(listId, id) {
@@ -44,29 +44,55 @@ class ListTodos {
     }
 
     async updateTask(listId, id, body) {
-        const client = new Client(config);
-        client.connect();
-        if (typeof body.done === "boolean") {
-            return client.query('UPDATE public.tasks SET done=$1 WHERE tasks.id=$2;', [body.done, +body.id])
-        }
+        return this.checkTaskExistence(listId, id)
+            .then((condition) => {
+                if (condition) {
+                    const client = new Client(config);
+                    client.connect();
+                    if (typeof body.done === "boolean") {
+                        return client.query('UPDATE public.tasks SET done=$1 WHERE tasks.id=$2;', [body.done, +body.id])
+                    }
+                }
+            });
     }
 
     rewriteTask(listId, id, body) {
-        const client = new Client(config);
-        client.connect();
-        if (body.name) {
-            if (typeof body.done === "boolean") {
-                return client.query('UPDATE public.tasks SET done=$1, name=$2 WHERE tasks.id=$3', [body.done, body.name, +body.id])
-            }
-        }
+        return this.checkTaskExistence(listId, id)
+            .then((condition) => {
+                if (condition) {
+                    const client = new Client(config);
+                    client.connect();
+                    if (body.name) {
+                        if (typeof body.done === "boolean") {
+                            return client.query('UPDATE public.tasks SET done=$1, name=$2 WHERE tasks.id=$3', [body.done, body.name, +body.id])
+                        }
+                    }
+                }
+            });
     }
 
     deleteTask(listId, taskId) {
-        const client = new Client(config);
-        client.connect();
-        if (+taskId) {
-            return client.query('DELETE FROM public.tasks WHERE tasks.id=$1;', [+taskId])
+        return this.checkTaskExistence(listId, +taskId)
+            .then((condition) => {
+                if (condition) {
+                    const client = new Client(config);
+                    client.connect();
+                    if (+taskId) {
+                        return client.query('DELETE FROM public.tasks WHERE tasks.id=$1;', [+taskId])
+                    }
+                }
+            })
+    }
+
+    clean(obj) {
+        for (let i = 0; i < obj.length; i++) {
+            for (let propName in obj[i]) {
+                if (obj[i][propName] === null || obj[i][propName].length === 0) {
+                    delete obj[i][propName];
+                }
+            }
         }
+        return obj;
     }
 }
 
