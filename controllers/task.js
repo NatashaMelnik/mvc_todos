@@ -28,6 +28,10 @@ class TaskController {
         return List.deleteTask(listId, taskId);
     }
 
+    displayTodayTasks() {
+        return List.displayTodayTasks();
+    }
+
 }
 
 module.exports = new TaskController();
