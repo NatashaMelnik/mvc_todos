@@ -106,7 +106,6 @@ class ListTodos {
 
     async displayAllSQL(listId, all) {
         if (all + '' === 'true') {
-            console.log('if');
             return knex('tasks')
                 .select('list_id', 'name', 'due_date', 'done')
                 .join('lists', 'tasks.list_id', '=', 'lists.id')
@@ -119,7 +118,6 @@ class ListTodos {
                 });
         }
         else {
-            console.log('else');
             return knex('tasks')
                 .select('list_id', 'name', 'due_date', 'done')
                 .join('lists', 'tasks.list_id', '=', 'lists.id')
