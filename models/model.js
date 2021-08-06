@@ -84,13 +84,24 @@ class ListTodos {
     }
 
     async displayTodayTasks() {
-        let now = new Date();
-        let date = `${now.getFullYear()}-${now.getMonth()+1}-${now.getDate()}`;
         return knex('tasks')
             .count('name')
-            .whereBetween('due_date', [date, date])
+            .whereBetween('due_date', [getToday(), getToday()]);
     }
 
+    async undoneTasks() {
+        return knex('tasks')
+            .count('done', {as: 'unfinished_tasks'})
+            .rightJoin('lists', 'tasks.list_id', 'lists.id')
+            .where('done', '=', 'false')
+            .groupByRaw('list_id');
+    }
+
+}
+
+function getToday() {
+    let now = new Date();
+    return `${now.getFullYear()}-${now.getMonth() + 1}-${now.getDate()}`;
 }
 
 function clean(obj) {

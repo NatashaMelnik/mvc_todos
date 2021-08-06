@@ -4,15 +4,13 @@ const controller = require('../controllers/task');
 
 const read = function () {
     router.get('/today', function (req, res) {
-        //   res.send('today')
         controller.displayTodayTasks()
             .then(data => {
-                res.send(data);
+                res.send(data[0].count + ' tasks for today');
             });
-
     });
     router.get('/status', function (req, res) {
-        controller.displaySingle(req.params.listId, +req.params.id)
+        controller.undoneTasks()
             .then(data => {
                 res.send(data);
             });

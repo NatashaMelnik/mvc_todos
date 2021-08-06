@@ -32,6 +32,10 @@ class TaskController {
         return List.displayTodayTasks();
     }
 
+    undoneTasks() {
+        return List.undoneTasks();
+    }
+
 }
 
 module.exports = new TaskController();
