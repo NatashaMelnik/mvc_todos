@@ -36,6 +36,14 @@ class TaskController {
         return List.undoneTasks();
     }
 
+    displayTodayTasksList() {
+        return List.displayTodayTasksList();
+    }
+
+    displayAllSQL(listId, all) {
+        return List.displayAllSQL(listId, all);
+    }
+
 }
 
 module.exports = new TaskController();

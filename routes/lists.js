@@ -8,7 +8,13 @@ const read = function () {
       .then(data => {
         res.send(data);
       });
-      
+  });
+  router.get('/sql/:listId/tasks', function (req, res) {  // AAAAAAAAAA
+    console.log(req.query.all + ' ' + req.params.listId)
+    controller.displayAllSQL(req.params.listId, req.query.all)
+      .then(data => {
+        res.send(data);
+      });
   });
   router.get('/:listId/tasks/:id', function (req, res) {
     controller.displaySingle(req.params.listId, +req.params.id)

@@ -91,10 +91,43 @@ class ListTodos {
 
     async undoneTasks() {
         return knex('tasks')
-            .count('done', {as: 'unfinished_tasks'})
+            .count('done', { as: 'unfinished_tasks' })
             .rightJoin('lists', 'tasks.list_id', 'lists.id')
             .where('done', '=', 'false')
             .groupByRaw('list_id');
+    }
+
+    async displayTodayTasksList() {
+        return knex('tasks')
+            .select('list_id', 'name', 'due_date')
+            .join('lists', 'tasks.list_id', '=', 'lists.id')
+            .where('due_date', '=', getToday());
+    }
+
+    async displayAllSQL(listId, all) {
+        if (all + '' === 'true') {
+            console.log('if');
+            return knex('tasks')
+                .select('list_id', 'name', 'due_date', 'done')
+                .join('lists', 'tasks.list_id', '=', 'lists.id')
+                .where({
+                    list_id: +listId,
+                    done: 'false'
+                }).orWhere({
+                    list_id: +listId,
+                    done: 'true'
+                });
+        }
+        else {
+            console.log('else');
+            return knex('tasks')
+                .select('list_id', 'name', 'due_date', 'done')
+                .join('lists', 'tasks.list_id', '=', 'lists.id')
+                .where({
+                    list_id: +listId,
+                    done: 'false'
+                });
+        }
     }
 
 }
