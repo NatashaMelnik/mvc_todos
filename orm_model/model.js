@@ -1,14 +1,5 @@
-// const knex = require('./knexconf');
-// const sequelize = require('./config');
+const sequelize = require('./config');
 const Sequelize = require('sequelize');
-
-const sequelize = new Sequelize('army_bd', 'postgres', 'qazpoi', {
-    dialect: 'postgres',
-    host: 'localhost',
-    define: {
-        timestamps: false
-    }
-});
 
 const lists = sequelize.define("lists", {
     id: {
@@ -48,42 +39,107 @@ const tasks = sequelize.define("tasks", {
     }
 });
 
-sequelize.sync().then(result => console.log(132))
-    .catch(err => {
-        console.log('err');
-        console.log(err);
-    });
+// sequelize.sync().then(result => console.log(result))
+//     .catch(err => {
+//         console.log('err');
+//         console.log(err);
+//     });
 
-// lists.hasMany(tasks); // set norm sv
+// lists.hasMany(tasks, { onDelete: "cascade" }); // ????
+tasks.hasOne(lists);
 
 class ListTodos {
 
+    checkExistence(listId, id) {
+        return tasks.findAll(
+            {
+                where: {
+                    list_id: +listId,
+                    id: +id
+                }
+            }).then(bool => {
+                if (bool.length > 0) {
+                    return true;
+                }
+            });
+    }
+
     displayAll(listId) {
-        console.log('in display all');
-        return tasks.findAll({ where: { name: "task1" }, raw: true })
-            .then(res => {
-                console.log(res);
+        return tasks.findAll({ where: { list_id: +listId }, raw: true }, { attributes: ['id', 'name', 'done', 'due_date'] })
+            .then(list => {
+                return list;
             }).catch(err => console.log(err));
     }
 
-
-}
-
-function getToday() {
-    let now = new Date();
-    return `${now.getFullYear()}-${now.getMonth() + 1}-${now.getDate()}`;
-}
-
-function clean(obj) {
-    for (let i = 0; i < obj.length; i++) {
-        for (let propName in obj[i]) {
-            if (obj[i][propName] === null || obj[i][propName].length === 0) {
-                delete obj[i][propName];
+    displaySingle(listId, id) {
+        return this.checkExistence(listId, id).then(bool => {
+            if (bool) {
+                return tasks.findByPk(+id)
+                    .then(res => {
+                        return res;
+                    }).catch(err => console.log(err));
             }
-        }
+        });
     }
-    return obj;
+
+    addTask(listId, body) {
+        return tasks.create({
+            name: body.name,
+            list_id: +listId,
+            done: body.done,
+            due_date: body.due_date
+        }).then(res => {
+            const task = { id: res.id, name: res.name, done: res.done, due_date: res.due_date };
+            return task;
+        }).catch(err => console.log(err));
+    }
+
+    updateTask(listId, id, body) {
+        return this.checkExistence(listId, id).then(bool => {
+            if (bool) {
+                return tasks.update({ done: Boolean(body.done) }, {
+                    where: { id: +id }
+                }).then(() => {
+                    return this.displaySingle(listId, id).then((res) => {
+                        return res;
+                    });
+                });
+            }
+        });
+    }
+
+    rewriteTask(listId, id, body) {
+        return this.checkExistence(listId, id).then(bool => {
+            if (bool) {
+                return tasks.update({ done: Boolean(body.done), name: body.name, due_date: body.due_date }, {
+                    where: { id: +id }
+                }).then(() => {
+                    return this.displaySingle(listId, id).then((res) => {
+                        return res;
+                    });
+                });
+            }
+        });
+    }
+
+    deleteTask(listId, id) {
+        return this.checkExistence(listId, id).then(bool => {
+            if (bool) {
+                return tasks.destroy({
+                    where: {
+                        id: +id
+                    }
+                }).then(() => {
+                    return this.displayAll(listId).then((res) => {
+                        return res;
+                    });
+                });
+            }
+        });
+    }
+
 }
+
 const List_orm = new ListTodos();
 
 module.exports = List_orm;
